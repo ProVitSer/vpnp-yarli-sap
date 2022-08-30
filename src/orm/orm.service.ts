@@ -1,7 +1,7 @@
 import { LoggerService } from '@app/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { CallInfoService } from './call-info.service';
-// import { ExternalCallInfo } from './interfaces/interface';
+import { CallsInfo } from './interfaces/types';
 
 @Injectable()
 export class OrmService {
@@ -11,9 +11,9 @@ export class OrmService {
       ) {}
 
 
-      public async getExternalCallInfo(incomingNumber: string): Promise<any>{
+      public async getExternalCallInfo(id: number): Promise<CallsInfo[]>{
           try {
-            return;
+            return await this.callInfo.searchCallInfo(id)
           } catch(e){
               throw e;
           }

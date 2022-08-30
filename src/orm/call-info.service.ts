@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CallcentQueuecalls, ClCalls, ClParticipants, ClPartyInfo, ClSegments } from './entities';
 import { EntityRepository, Repository } from "typeorm";
+import { CallsInfo } from './interfaces/types';
 
 
 @Injectable()
@@ -21,21 +22,16 @@ export class CallInfoService {
         private queue: Repository<CallcentQueuecalls>
       ) {}
       
-        //Поиск первый ID вызова в базе 3сх
-        public async searchFirstIncomingId(incomingNumber: string): Promise<ClPartyInfo>{
+        public async searchCallInfo(id: number): Promise<CallsInfo[]>{
             try {
-                return await this.callPartyInfo
-                    .createQueryBuilder("cl_party_info")
-                    .select("cl_party_info.id")
-                    .where("cl_party_info.callerNumber like :number", {
-                        number: incomingNumber,
-                    })
-                    .orderBy("cl_party_info.id", "DESC")
-                    .getOne();
+                return await this.callParticipants.query(`
+                SELECT * FROM cl_participants
+                FULL OUTER JOIN cl_party_info ON cl_participants.info_id = cl_party_info.id
+                WHERE cl_participants.info_id IN (select info_id from cl_participants where call_id = ${id})  
+                `);
             } catch(e){
-                this.logger.error(`searchFirstIncomingId ${e}`)
+                this.logger.error(`Error get ClPartyInfo info: ${e}`)
             }
         
         }
-
 }

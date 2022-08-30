@@ -3,11 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CallInfoService } from './call-info.service';
-import { CallcentQueuecalls } from './entities/CallcentQueuecalls';
-import { ClCalls } from './entities/ClCalls';
-import { ClParticipants } from './entities/ClParticipants';
-import { ClPartyInfo } from './entities/ClPartyInfo';
-import { ClSegments } from './entities/ClSegments';
+import { ClSegments, CallcentQueuecalls, ClCalls, ClParticipants, ClPartyInfo } from './entities';
 import { OrmService } from './orm.service';
 
 @Module({
@@ -19,19 +15,20 @@ import { OrmService } from './orm.service';
       useFactory: (config: ConfigService) => ({
         name: 'postgres',
         type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'pgpwd4habr',
-        database: 'postgres',
-        entities: [],
-        synchronize: true,
-        useUnifiedTopology: true,
+        host: config.get('postgres.host'),
+        port: config.get('postgres.port'),
+        username: config.get('postgres.username'),
+        password: config.get('postgres.password'),
+        database: config.get('postgres.database'),
+        entities: [__dirname + '/entities/*{.ts,.js}'],
+        synchronize: false,
+        useUnifiedTopology: false,
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([ClParticipants,ClPartyInfo,ClSegments,ClCalls,CallcentQueuecalls]),
+    TypeOrmModule.forFeature([ClSegments, CallcentQueuecalls, ClCalls, ClParticipants, ClPartyInfo]),
   ],
-  providers: [OrmService , CallInfoService]
+  providers: [OrmService , CallInfoService],
+  exports:[OrmService]
 })
 export class OrmModule {}
