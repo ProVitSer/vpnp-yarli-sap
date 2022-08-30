@@ -1,14 +1,14 @@
+import { CdrModule } from '@app/cdr/cdr.module';
 import { LoggerModule } from '@app/logger/logger.module';
 import { OrmModule } from '@app/orm/orm.module';
 import {  Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { CdrTcpServer } from './cdr-tcp.server';
-import { CdrService } from './cdr.service';
+import { TcpServer } from './tcp.server';
 
 @Module({
-    providers: [CdrTcpServer, CdrService],
-    imports:[ConfigModule, LoggerModule],
-    exports: [],
+    providers: [TcpServer],
+    imports:[ConfigModule, LoggerModule, CdrModule],
+    exports: [TcpServer],
   
 })
 export class MicroserviceModule {}
