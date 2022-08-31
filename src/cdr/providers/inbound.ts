@@ -1,12 +1,16 @@
 import { CallsInfo } from "@app/orm/interfaces/types";
 import { Injectable } from "@nestjs/common";
-import { DidFullNumberMap } from "../config";
 import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface, SapCallInfo } from "../types/interfaces";
 import { CallResult, Directory } from "../types/types";
 import * as moment from 'moment';
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ParseInbound implements ParseProviderInterface {
+    constructor(
+        private readonly configService: ConfigService
+    ){}
+
     async parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]> {
         try {
             if(!dbInfo && dbInfo.length == 0 ) throw 'Отсутствует данные из БД для анализа';
@@ -51,7 +55,8 @@ export class ParseInbound implements ParseProviderInterface {
 
 
     private getDidNumber(dbInfo: CallsInfo[]){
-        return DidFullNumberMap[dbInfo[0].did_number]
+        const pbxTrunkNumber = this.configService.get(`pbxTrunkNumber`);
+        return  pbxTrunkNumber[dbInfo[0].did_number]
     }
 
     private getNeedDestinationNumber(numbers: Array<string>) {
@@ -61,21 +66,3 @@ export class ParseInbound implements ParseProviderInterface {
     }
     
 }
-//     "apiCallInfo":{
-//        "uniq":"7a6a0e22-f46e-4f79-a4b6-de7ba917674d",
-//        "3cxId":"1835413",
-//        "incomingNumber":"84852583901",
-//        "dialedNumber":"4852580085",
-//        "extension":"396",
-//        "duration":"4",
-//        "createdAt":"2022-08-31 10:54:46",
-//        "callStatus":"inbound",
-//        "callResult":"TerminatedBySrc",
-//        "route":[
-//           "84852583901",
-//           "396"
-//        ],
-//        "link":""
-//     },
-//     "isExternal":true
-//  }
