@@ -23,11 +23,11 @@ export class AsteriskService {
             const { extension, dialedNumber } = data;
             this.logger.info(`Исходящий вызов из webhook CRM: внутренний номер ${extension} внешний номер ${dialedNumber}`);
             const action = new namiLib.Actions.Originate();
-            action.channel = `local/${extension}:${dialedNumber}@${this.configServcie.get('voip.routeTo3cx.localContext')}`,
+            action.channel = `local/${extension}:${dialedNumber}@${this.configServcie.get('voip.pbx3cx.routeTo3cx.localContext')}`,
             action.callerid = dialedNumber;
             action.priority = AMIOUTBOUNDCALL.priority;
             action.timeout = AMIOUTBOUNDCALL.timeout;
-            action.context = this.configServcie.get('voip.routeTo3cx.externalContext');
+            action.context = this.configServcie.get('voip.pbx3cx.routeTo3cx.externalContext');
             action.exten = dialedNumber;
             action.variable = `var1=${extension}`;
             action.channelid = moment().unix()

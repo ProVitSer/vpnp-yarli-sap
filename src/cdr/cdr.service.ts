@@ -85,7 +85,7 @@ export class CdrService {
     }
 
     private getCallStatus(data: CdrData): Directory{
-        if(data.fromDn == this.configService.get('voip.routeTo3cx.did3cxNumber')) return Directory.crm;
+        if(data.fromDn == this.configService.get('voip.pbx3cx.routeTo3cx.did3cxNumber')) return Directory.crm;
         return (data.toDn.length > 3) ? Directory.outbound : Directory.inbound; 
     }
 
@@ -109,7 +109,7 @@ export class CdrService {
     }
 
     private checkIsExternalCall(data: CdrData): boolean{
-        if(data.fromDn == this.configService.get('voip.routeTo3cx.did3cxNumber')) return true;// Вызов из CRM
+        if(data.fromDn == this.configService.get('voip.pbx3cx.routeTo3cx.did3cxNumber')) return true;// Вызов из CRM
         if(data.fromDn.length == 3 && data.toDn.length == 3){// Внутренние вызовы
             return false;
         } else if(data.fromNo.length > 8 && data.toDn.length == 3){ //Входящие
