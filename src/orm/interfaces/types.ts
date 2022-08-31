@@ -1,3 +1,3 @@
-import { ClParticipants, ClPartyInfo } from "../entities";
+import { ClParticipants, ClPartyInfo } from "./interface";
 
 export type CallsInfo = ClParticipants & ClPartyInfo
