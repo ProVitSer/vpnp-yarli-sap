@@ -30,8 +30,39 @@ export class CallInfoService {
                 WHERE cl_participants.info_id IN (select info_id from cl_participants where call_id = ${id})  
                 `);
             } catch(e){
-                this.logger.error(`Error get ClPartyInfo info: ${e}`)
+                this.logger.error(`Error get ClPartyInfo info: ${e}`);
+                throw e;
             }
         
+        }
+
+        public async getClPartyInfoByNumber(callerNumber: string, extensionNumber: string): Promise<ClPartyInfo>{
+            try {
+                return await this.callPartyInfo
+                .createQueryBuilder('cl_party_info')
+                .select()
+                .where("cl_party_info.callerNumber like :callerNumber", {
+                    callerNumber: callerNumber,
+                })
+                .andWhere("cl_party_info.didNumber like :extensionNumber", {
+                    extensionNumber: extensionNumber,
+                })
+                .orderBy("cl_party_info.id", "DESC")
+                .getOne();
+            } catch(e){
+                this.logger.error(`Error get callInfo : ${e}`);
+                throw e;
+            }
+        } 
+
+        public async getRecord(id: number): Promise<Array<{recording_url : string | null}>>{
+            try {
+                return await this.callParticipants.query(`
+                SELECT recording_url FROM cl_participants WHERE call_id = (SELECT call_id FROM cl_participants WHERE info_id = ${id}) ORDER BY id DESC LIMIT 1;
+                `);
+            } catch(e){
+                this.logger.error(`Error get getRecord : ${e}`);
+                throw e;
+            }
         }
 }

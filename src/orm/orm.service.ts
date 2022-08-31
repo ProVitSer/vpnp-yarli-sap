@@ -19,4 +19,17 @@ export class OrmService {
           }
       }
 
+      public async getCrmCallRecord(callerNumber: string, extensionNumber: string){
+        try {
+          const ClPartyInfo = await this.callInfo.getClPartyInfoByNumber(callerNumber, extensionNumber);
+          if(!!ClPartyInfo){
+            return await this.callInfo.getRecord(ClPartyInfo.id);
+          } else {
+            throw `ClPartyInfo is empty by: ${callerNumber}, ${extensionNumber}`
+          }
+        } catch(e){
+            throw e;
+        }
+      }
+
 }
