@@ -27,15 +27,15 @@ export class CdrService {
             const callInfo = this.formatCdrData(data);
             this.logger.info(callInfo)
             if(callInfo.isExternal){
-                this.logger.info(`Внешний вызов ${JSON.stringify(callInfo.apiCallInfo)}` );
+                this.logger.info(`External Call ${JSON.stringify(callInfo.apiCallInfo)}` );
                 const dbCallInfo = await this.orm.getExternalCallInfo(Number(callInfo.apiCallInfo["3cxId"]));
-                this.logger.info(`searchClPartyInfo ${JSON.stringify(dbCallInfo)}`);
+                this.logger.info(`Cdr info from DB: ${JSON.stringify(dbCallInfo)}`);
                 const formatCallInfo = await this.parser.parse(callInfo, dbCallInfo);
-                console.log(formatCallInfo)
+                this.logger.info(JSON.stringify(formatCallInfo));
             } 
             return;
         }catch(e){
-            this.logger.error(e)
+            this.logger.error('Error parse and notifyCallInfo: ' + e)
         }
 
     }
@@ -74,7 +74,7 @@ export class CdrService {
                 ...this.numbersInfo(data),
                 duration: String(data.duration),  
                 createdAt: moment().add(3, 'hour').format('YYYY-MM-DD H:mm:ss'),  
-                callStatus: (data.toDn.length > 3) ? Directory.outbound : Directory.inbound,  
+                callStatus: this.getCallStatus(data),
                 callResult: data.reasonTerminated,  
                 route,
                 link: '',   
@@ -82,7 +82,11 @@ export class CdrService {
         } catch(e){
             throw e;
         }
+    }
 
+    private getCallStatus(data: CdrData): Directory{
+        if(data.fromDn == this.configService.get('voip.routeTo3cx.did3cxNumber')) return Directory.crm;
+        return (data.toDn.length > 3) ? Directory.outbound : Directory.inbound; 
     }
 
     private numbersInfo(data: CdrData){
@@ -98,13 +102,14 @@ export class CdrService {
             //Исходящие через саму АТС
             return {
                 incomingNumber: (data.fromNo.length > 8) ? data.fromNo : '',
-                dialedNumber: (data.toDn.length > 3) ?  data.toNo: this.trunkNumber[data.fromDn],  
+                dialedNumber: (data.toDn.length > 3) ?  data.toNo: this.trunkNumber[data.fromDn] || '',  
                 extension: (data.fromDn.length > 3) ? data.toDn : data.fromDn, 
             }
         }
     }
 
     private checkIsExternalCall(data: CdrData): boolean{
+        if(data.fromDn == this.configService.get('voip.routeTo3cx.did3cxNumber')) return true;// Вызов из CRM
         if(data.fromDn.length == 3 && data.toDn.length == 3){// Внутренние вызовы
             return false;
         } else if(data.fromNo.length > 8 && data.toDn.length == 3){ //Входящие

@@ -66,6 +66,7 @@ export interface ExternalCallInfo {
     link: string,   
 }
 
+export type SapCallInfo = Omit<ExternalCallInfo, 'route'>;
 
 export interface FormatCallInfo {
     originCallInfo: CdrData, 
@@ -74,5 +75,5 @@ export interface FormatCallInfo {
 }
 
 export interface ParseProviderInterface {
-    parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<Omit<ExternalCallInfo, 'route'>>;
+    parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]>;
 }
