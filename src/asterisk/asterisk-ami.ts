@@ -27,7 +27,7 @@ export class AsteriskAmi implements OnApplicationBootstrap {
     public async onApplicationBootstrap() {
         try {
             this.client = await this.ami;
-            this.client.logLevel = this.configService.get('asterisk.ami.logLevel');
+            this.client.logLevel = this.configService.get('voip.ami.logLevel');
             this.client.open();
             this.client.on('namiConnected', () => this.logger.info('Подключение к AMI успешно установлено'));
             this.client.on('namiConnectionClose', () => this.connectionClose());
