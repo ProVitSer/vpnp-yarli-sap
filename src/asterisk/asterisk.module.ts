@@ -14,10 +14,10 @@ import { LoggerMiddleware } from '@app/middlewares/logger.middleware';
             provide: 'AMI',
             useFactory: async (configService: ConfigService) => {
                 return new namiLib.Nami({
-                    username: configService.get('asterisk.ami.username'),
-                    secret: configService.get('asterisk.ami.password'),
-                    host: configService.get('asterisk.ami.host'),
-                    port: configService.get('asterisk.ami.port')
+                    username: configService.get('voip.ami.username'),
+                    secret: configService.get('voip.ami.password'),
+                    host: configService.get('voip.ami.host'),
+                    port: configService.get('voip.ami.port')
                 })
 
             },
