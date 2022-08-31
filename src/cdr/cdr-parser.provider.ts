@@ -1,9 +1,10 @@
 import { LoggerService } from "@app/logger/logger.service";
 import { CallsInfo } from "@app/orm/interfaces/types";
 import { Injectable } from "@nestjs/common";
+import { ParseCrmCall } from "./providers/crm";
 import { ParseInbound } from "./providers/inbound";
 import { ParseOutbound } from "./providers/outbound";
-import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface } from "./types/interfaces";
+import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface, SapCallInfo } from "./types/interfaces";
 import { Directory } from "./types/types";
 
 @Injectable()
@@ -13,22 +14,22 @@ export class CdrParserProvider {
         private readonly logger: LoggerService,
         private readonly parseInbound: ParseInbound,
         private readonly parseOutbound: ParseOutbound,
-
-
+        private readonly parseCrmCall: ParseCrmCall,
     ){}
 
     get providers(): any {
         return {
             [Directory.inbound]: this.parseInbound,
             [Directory.outbound]: this.parseOutbound,
+            [Directory.crm]: this.parseCrmCall,
+
         };
     }
 
-    public async parse(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<Omit<ExternalCallInfo, 'route'>> {  
+    public async parse(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]> {  
         try {
             const provider = this.getProvider(data.apiCallInfo.callStatus);
-            console.log(provider)
-            return provider.parseCallInfo(data , dbInfo);
+            return await provider.parseCallInfo(data , dbInfo);
         } catch(e){
             this.logger.error(e);
             throw e;

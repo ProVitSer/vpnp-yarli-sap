@@ -16,7 +16,8 @@ export enum ReasonTerminated {
 
 export enum Directory {
     inbound = 'inbound',
-    outbound = 'outbound'
+    outbound = 'outbound',
+    crm = 'crm'
 } 
 
 export enum CallResult {
@@ -25,6 +26,3 @@ export enum CallResult {
     BUSY = "BUSY",
     CHANUNAVAIL = "CHANUNAVAIL",
 }
-
-
-
