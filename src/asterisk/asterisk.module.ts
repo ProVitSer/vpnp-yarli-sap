@@ -26,7 +26,7 @@ import { LoggerMiddleware } from '@app/middlewares/logger.middleware';
         AsteriskAmi,
         AsteriskService
     ],
-    exports:[AsteriskAmi],
+    exports:[AsteriskAmi, AsteriskService],
     controllers: [AsteriskController],
 })
 export class AsteriskModule {
