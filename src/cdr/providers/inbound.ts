@@ -7,9 +7,12 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ParseInbound implements ParseProviderInterface {
+    private readonly recordUrl: string;
     constructor(
         private readonly configService: ConfigService
-    ){}
+    ){
+        this.recordUrl = `${this.configService.get('recordsUrl')}`;
+    }
 
     async parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]> {
         try {
@@ -35,7 +38,7 @@ export class ParseInbound implements ParseProviderInterface {
                 createdAt: moment(data.apiCallInfo.createdAt, 'YYYY-MM-DD H:mm:ss').unix().toString(),
                 callStatus: Directory.inbound,
                 ...this.checkisAnswerCall(numberDbInfo),
-                link: numberDbInfo.recording_url,
+                link: `${this.recordUrl}${numberDbInfo.recording_url}`,
             };
             capCallIfo.push(sapCallInfo);
         })

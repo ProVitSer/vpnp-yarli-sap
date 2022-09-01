@@ -4,5 +4,7 @@ import { join } from 'path';
 const CONFIG_FILE = 'config.json';
 
 export default () => {
-    return JSON.parse(readFileSync(join(__dirname, CONFIG_FILE), 'utf8'));
+    const config = JSON.parse(readFileSync(join(__dirname, CONFIG_FILE), 'utf8'));
+    config['recordsUrl'] = `http://${config.appHost}:${config.appPort}/${config.appPrefix}/records/`;
+    return config;
 };

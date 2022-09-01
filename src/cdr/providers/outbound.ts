@@ -3,9 +3,17 @@ import { Injectable } from "@nestjs/common";
 import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface, SapCallInfo } from "../types/interfaces";
 import { CallResult } from "../types/types";
 import * as moment from 'moment';
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ParseOutbound implements ParseProviderInterface {
+    private readonly recordUrl: string;
+    constructor(
+        private readonly configService: ConfigService
+    ){
+        this.recordUrl = `${this.configService.get('recordsUrl')}`;
+    }
+
     async parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]> {
         try {
             if(!dbInfo && dbInfo.length == 0 ) throw 'Отсутствует данные из БД для анализа';
@@ -21,7 +29,7 @@ export class ParseOutbound implements ParseProviderInterface {
                 createdAt: moment(data.apiCallInfo.createdAt, 'YYYY-MM-DD H:mm:ss').unix().toString(),
                 callStatus: apiCallInfo.callStatus,
                 callResult: (!!dbInfo[dbInfo.length -1].billing_duration)? CallResult.ANSWER: CallResult.BUSY,
-                link: dbInfo[0].recording_url
+                link: `${this.recordUrl}${dbInfo[0].recording_url}`
             }]
         }catch(e){
             throw e;
