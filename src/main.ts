@@ -28,7 +28,7 @@ async function bootstrap() {
     }
   }));
   await app.startAllMicroservices();
-  app.setGlobalPrefix('api/v2');
+  app.setGlobalPrefix(config.get('appPrefix'));
   await app.listen(config.get('appPort'));
 }
 bootstrap();
