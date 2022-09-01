@@ -9,13 +9,14 @@ import { Capabilities } from './types/interfaces';
 @Injectable()
 export class SeleniumWebdriver implements OnApplicationBootstrap  {
     private capabilities: Capabilities;
-    private readonly seleniumDockerImg = 'aerokube/selenoid:1.10.8';
+    private readonly seleniumDockerImg: string;
     constructor(
         private readonly configService: ConfigService,
         private readonly logger: LoggerService,
         private readonly docker: DockerService
     ) {
-        this.capabilities = this.configService.get('selenium.capabilities')
+        this.capabilities = this.configService.get('selenium.capabilities');
+        this.seleniumDockerImg = this.configService.get('selenium.selenoidDockerImg');
     }
 
 
