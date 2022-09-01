@@ -40,7 +40,7 @@ export class ChangeExtensionStatus implements SeleniumProviderInterface {
             await this.setStatus(data.status);
             return await this.logout.logoutOnPbx(this.webDriver);
         }catch(e){
-            await this.webDriver.quit();
+            (!!this.webDriver)? await this.webDriver.quit() : '';
             throw e;
         }
     }

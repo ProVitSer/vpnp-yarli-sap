@@ -45,7 +45,7 @@ export class Login {
             await this.webDriver.sleep(5000);
             return this.webDriver;
         }catch(e){
-            await this.webDriver.quit();
+            (!!this.webDriver)? await this.webDriver.quit() : '';
             this.logger.error(e);
             throw 'Проблемы с авторизацией на веб интерфейсе АТС'
         }

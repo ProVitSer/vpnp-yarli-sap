@@ -8,9 +8,10 @@ import { SeleniumProvider } from './selenium.provider';
 import { Login } from './providers/login';
 import { ChangeExtensionStatus } from './providers/change-pbx-extension-status';
 import { Logout } from './providers/logout';
+import { DockerModule } from '@app/docker/docker.module';
 
 @Module({
-  imports: [ConfigModule, LoggerModule],
+  imports: [ConfigModule, LoggerModule, DockerModule],
   providers: [SeleniumProvider, SeleniumWebdriver, Login, Logout, ChangeExtensionStatus],
   controllers: [SeleniumController]
 })
