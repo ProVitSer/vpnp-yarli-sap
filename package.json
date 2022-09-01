@@ -27,6 +27,7 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/microservices": "^9.0.11",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/terminus": "^9.1.1",
     "@nestjs/typeorm": "^9.0.1",
     "@nestjs/websockets": "^9.0.11",
     "@types/dockerode": "^3.3.9",
