@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { AsteriskAmi } from './asterisk-ami';
 import * as namiLib from 'nami';
 import { AMIOUTBOUNDCALL } from './config';
-import { ChannelType } from './types/types';
-import { AmiCall } from './types/interfaces';
+import { AsteriskPingActionResponse, ChannelType } from './types/types';
+import { AmiCall, AsteriskPing } from './types/interfaces';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
 
@@ -37,10 +37,22 @@ export class AsteriskService {
             const resultInitCall : any = await this.ami.amiClientSend(action)
             this.logger.info(`Результат инициации вызова ${JSON.stringify(resultInitCall)}`);
         } catch(e){
+            this.logger.error(e);
             throw e;
         }
     }
 
+    public async ping(): Promise<boolean>{
+        try {
+            const action = new namiLib.Actions.Ping();
+            const result = await this.ami.amiClientSend<AsteriskPingActionResponse>(action);
+            if(!!result && result.response !== 'Success') throw result;
+            return true;
+        }catch(e){
+            this.logger.error(e);
+            throw e;
+        }
+    }
 }
 
 
