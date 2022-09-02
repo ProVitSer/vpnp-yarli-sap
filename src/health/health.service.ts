@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { HealthCheckService, TypeOrmHealthIndicator, HealthIndicatorResult, MicroserviceHealthIndicator, HealthCheckError } from '@nestjs/terminus';
+import { HealthCheckService, TypeOrmHealthIndicator, HealthIndicatorResult, MicroserviceHealthIndicator, HealthCheckError, HealthCheckResult } from '@nestjs/terminus';
 import { AsteriskServiceHealthIndicator } from './health-indicator/asterisk.service.healthIndicator';
 import { DockerImgServiceHealthIndicator, DockerServiceHealthIndicator } from './health-indicator/docker.service.healthIndicator';
 import { FilaPathExistHealthIndicator } from './health-indicator/fsPathExist.healthIndicator';
+import { HealthCheckMailFormat, ServiceInfo } from './types/interfaces';
+import { HealthCheckStatusType, ReturnHealthFormatType } from './types/types';
 
 @Injectable()
 export class HealthService {
@@ -23,62 +25,71 @@ export class HealthService {
         this.statusService = [];
     }
 
-    public async check(){
+    public async check<T>(formatType: ReturnHealthFormatType):Promise<T>{
+      try {
         const result = await this.healthCheckService.check([
-          async () => this.typeOrmHealthIndicator.pingCheck('DatabaseService').then( (value: HealthIndicatorResult) => {
-            this.statusService.push(value);
-            return value;
-          }),
-          async () => this.microservice.pingCheck('CdrServer', { transport: Transport.TCP, options: { 
-            host: this.configService.get('tcpServer.host'), port: this.configService.get('tcpServer.port') }})
-            .then( (value: HealthIndicatorResult) => {
-            this.statusService.push(value);
-            return value;
-          }),
+          async () => this.typeOrmHealthIndicator.pingCheck('DatabaseService'),
+          async () => this.microservice.pingCheck('CdrServer', { transport: Transport.TCP, options: { host: this.configService.get('tcpServer.host'), port: this.configService.get('tcpServer.port') }}),
           ...this.customCheck()
-        ]).catch((e:any) => { console.log(e); return e.response;});
-        return result;
+        ]);
+        return new HealthFormatResult(result, formatType).format();
+      }catch(e){
+        return new HealthFormatResult(e.response, formatType).format();
+      }
     }
 
     private customCheck(){
         return [
-            async () => this.asteriskService.isHealthy('AsteriskService').then( (value: HealthIndicatorResult) => {
-                this.statusService.push(value);
-                return value;
-              }),
-            async () => this.dockerService.isHealthy('DockerService').then( (value: HealthIndicatorResult) => {
-                this.statusService.push(value);
-                return value;
-              }), 
-            async () => this.dockerImg.isHealthy(this.configService.get('selenium.selenoidDockerImg'),'DockerSelenoid').then( (value: HealthIndicatorResult) => {
-                this.statusService.push(value);
-                return value;
-              }), 
-            async () => this.fs.isHealthy(`${this.configService.get('windowsSharePath')}/777`,'WindowsShare').then( (value: HealthIndicatorResult) => {
-                this.statusService.push(value);
-                return value;
-              })//.catch((e:HealthCheckError) => {console.log(e); return e;}),                                             
-            ]
+            async () => this.asteriskService.isHealthy('AsteriskService'),
+            async () => this.dockerService.isHealthy('DockerService'),
+            async () => this.dockerImg.isHealthy(this.configService.get('selenium.selenoidDockerImg'),'DockerSelenoid'),
+            async () => this.fs.isHealthy(`${this.configService.get('windowsSharePath')}/278`,'WindowsShare')                                    
+          ]
     }
 }
 
-// response: {
-//     status: 'error',
-//     info: {
-//       DatabaseService: [Object],
-//       CdrServer: [Object],
-//       AsteriskService: [Object],
-//       DockerService: [Object],
-//       DockerSelenoid: [Object]
-//     },
-//     error: { WindowsShare: [Object] },
-//     details: {
-//       DatabaseService: [Object],
-//       CdrServer: [Object],
-//       AsteriskService: [Object],
-//       DockerService: [Object],
-//       DockerSelenoid: [Object],
-//       WindowsShare: [Object]
-//     }
-//   },
-//   status: 503
+
+export class HealthFormatResult {
+  result: HealthCheckResult;
+  formatType: ReturnHealthFormatType
+
+  constructor(result: HealthCheckResult, formatType: ReturnHealthFormatType) {
+    this.result = result;
+    this.formatType = formatType;
+  }
+
+  public format(){
+    return this[this.getMethodByFormatType()]();
+  }
+  
+
+  private getMethodByFormatType(): any {
+    switch (this.formatType) {
+      case ReturnHealthFormatType.http:
+          return 'httpFormat';
+      case ReturnHealthFormatType.mail:
+          return 'mailFormat';
+    }
+  }
+
+  private httpFormat(): HealthCheckResult {
+    return this.result;
+  }
+
+  private mailFormat(): HealthCheckMailFormat{
+    const mailInfoFormat = [];
+
+    function parseObj(obj: HealthIndicatorResult){
+      Object.keys(obj).forEach((value: string) => {
+        mailInfoFormat.push({ serviceName: value, status: obj[value].status, detail: (!!obj[value].message)? {details: obj[value].message} : {} }); 
+      })
+    }
+
+    const resultInfo = (this.result.status === 'error')? {...this.result.info, ...this.result.error} : {...this.result.info};
+    parseObj(resultInfo);
+    return {
+      status: this.result.status as HealthCheckStatusType,
+      service: mailInfoFormat
+    }
+  }
+}

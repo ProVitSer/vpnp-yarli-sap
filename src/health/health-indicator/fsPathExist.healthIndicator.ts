@@ -17,9 +17,10 @@ export class FilaPathExistHealthIndicator extends HealthIndicator {
       if(!exist) throw `${filePath} недоступна`
       return this.getStatus(key, true);
     } catch (e) {
+      const errorMsg = e;
       throw new HealthCheckError(
-        `${key} failed: ${e}`,
-        this.getStatus(key, false)
+        `${key} failed`,
+        this.getStatus(key, false, { message: errorMsg })
       );
     }
   }

@@ -16,9 +16,10 @@ export class DockerServiceHealthIndicator extends HealthIndicator {
       await this.docker.checkDocker();
       return this.getStatus(key, true);
     } catch (e) {
+      const errorMsg = e;
       throw new HealthCheckError(
         `${key} failed`,
-        this.getStatus(key, false)
+        this.getStatus(key, false, { message: errorMsg })
       );
     }
   }
@@ -38,9 +39,10 @@ export class DockerImgServiceHealthIndicator extends HealthIndicator {
       if(!result) throw `Нужный img: ${img} не запущен`
       return this.getStatus(key, true);
     } catch (e) {
+      const errorMsg = e;
       throw new HealthCheckError(
         `${key} failed`,
-        this.getStatus(key, false)
+        this.getStatus(key, false, { message: errorMsg })
       );
     }
   }

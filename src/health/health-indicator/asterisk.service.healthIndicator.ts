@@ -14,9 +14,10 @@ export class AsteriskServiceHealthIndicator extends HealthIndicator {
       await this.asterisk.ping();
       return this.getStatus(key, true);
     } catch (e) {
+      const errorMsg = e;
       throw new HealthCheckError(
         `${key} failed`,
-        this.getStatus(key, false)
+        this.getStatus(key, false, { message: errorMsg })
       );
     }
   }
