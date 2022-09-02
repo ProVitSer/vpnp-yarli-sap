@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheck } from '@nestjs/terminus';
+import { HealthCheck, HealthCheckResult } from '@nestjs/terminus';
 import { HealthService } from './health.service';
+import { ReturnHealthFormatType } from './types/types';
 
 @Controller('health')
 export class HealthController {
@@ -11,6 +12,6 @@ export class HealthController {
       @Get()
       @HealthCheck()
       async healthCheck() {
-        return await this.healthService.check();
+        return await this.healthService.check<HealthCheckResult>(ReturnHealthFormatType.mail);
       }
 }
