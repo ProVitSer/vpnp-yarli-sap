@@ -9,19 +9,11 @@ export interface PlainObject { [key: string]: any }
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {
     private client: any;
-    
-
     constructor(
         @Inject('AMI') private readonly ami : any,
         private readonly configService: ConfigService,
         private readonly logger: LoggerService,
     ) {
-    }
-
-    get providers(): any {
-        return {
-
-        }
     }
 
     public async onApplicationBootstrap() {
@@ -41,8 +33,9 @@ export class AsteriskAmi implements OnApplicationBootstrap {
 
 
     public async amiClientSend<T>(action : any): Promise<T> {
+        if(!this.client.connected) throw 'Error connected to Asterisk';
         return await new Promise((resolve) =>{
-            this.client.send(action, (event: any) => {
+            this.client.send(action, (event: any, error: any) => {
                 this.logger.info(event);
                 resolve(event);
             });
