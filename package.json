@@ -1,9 +1,8 @@
 {
   "name": "vpnp-yarli-sap",
-  "version": "0.0.1",
-  "description": "",
+  "version": "1.0.0",
+  "description": "Integration module",
   "author": "ProVitSer",
-  "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
