@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ChangeStatusInfo, SeleniumProviderInterface, StatusMap } from "../types/interfaces";
 import { Login } from "./login";
-import { Builder,By, Key, until, WebDriver  } from 'selenium-webdriver'
+import { By, until, WebDriver  } from 'selenium-webdriver'
 import { ApiExtensionStatus } from "../types/type";
 import { Logout } from "./logout";
 

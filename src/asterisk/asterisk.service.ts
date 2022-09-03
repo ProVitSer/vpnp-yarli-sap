@@ -1,21 +1,22 @@
-import { LoggerService } from '@app/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { AsteriskAmi } from './asterisk-ami';
 import * as namiLib from 'nami';
 import { AMIOUTBOUNDCALL } from './config';
 import { AsteriskPingActionResponse, ChannelType } from './types/types';
-import { AmiCall, AsteriskPing } from './types/interfaces';
+import { AmiCall } from './types/interfaces';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '@app/logger/logger.service';
 
 @Injectable()
 export class AsteriskService {
-
+    private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         private readonly configServcie: ConfigService,
         private readonly ami : AsteriskAmi, 
     ) {
+        this.serviceContext = AsteriskService.name;
     }
 
     public async sendAmiCall(data: AmiCall): Promise<void> {
@@ -35,9 +36,9 @@ export class AsteriskService {
             this.logger.info(`Результат инициации вызова ${JSON.stringify(action)}`);
 
             const resultInitCall : any = await this.ami.amiClientSend(action)
-            this.logger.info(`Результат инициации вызова ${JSON.stringify(resultInitCall)}`);
+            this.logger.info(`Результат инициации вызова ${JSON.stringify(resultInitCall)}`, this.serviceContext);
         } catch(e){
-            this.logger.error(e);
+            this.logger.error(`Error send AMI Call: ${e}`, this.serviceContext);
             throw e;
         }
     }
@@ -49,7 +50,7 @@ export class AsteriskService {
             if(!!result && result.response !== 'Success') throw result;
             return true;
         }catch(e){
-            this.logger.error(e);
+            this.logger.error(`Error ping Asterisk: ${e}`, this.serviceContext);
             throw e;
         }
     }

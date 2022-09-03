@@ -1,4 +1,3 @@
-import { LoggerService } from "@app/logger/logger.service";
 import { Injectable } from "@nestjs/common";
 import { CdrData, cdrFormatData, ExternalCallInfo, FormatCallInfo, TrunkNumber } from "./types/interfaces";
 import * as moment from 'moment';
@@ -6,36 +5,38 @@ import { OrmService } from "@app/orm/orm.service";
 import { UtilsService } from "@app/utils/utils.service";
 import { ConfigService } from "@nestjs/config";
 import { Directory } from "./types/types";
-import { CallsInfo } from '../orm/interfaces/types';
 import { CdrParserProvider } from "./cdr-parser.provider";
+import { LoggerService } from "@app/logger/logger.service";
 
 @Injectable()
 export class CdrService {
     private trunkNumber:TrunkNumber;
-
+    private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         private readonly configService: ConfigService,
         private readonly orm: OrmService,
         private readonly parser: CdrParserProvider
     ){
-        this.trunkNumber = this.configService.get('pbxTrunkNumber')
+        this.trunkNumber = this.configService.get('pbxTrunkNumber');
+        this.serviceContext = CdrService.name;
+
     }
 
     async notifyCallInfo(data: Array<string>){
         try {
             const callInfo = this.formatCdrData(data);
-            this.logger.info(callInfo)
+            this.logger.info(callInfo, this.serviceContext)
             if(callInfo.isExternal){
-                this.logger.info(`External Call ${JSON.stringify(callInfo.apiCallInfo)}` );
+                this.logger.info(`External Call ${JSON.stringify(callInfo.apiCallInfo)}`, this.serviceContext );
                 const dbCallInfo = await this.orm.getExternalCallInfo(Number(callInfo.apiCallInfo["3cxId"]));
-                this.logger.info(`Cdr info from DB: ${JSON.stringify(dbCallInfo)}`);
+                this.logger.info(`Cdr info from DB: ${JSON.stringify(dbCallInfo)}`, this.serviceContext);
                 const formatCallInfo = await this.parser.parse(callInfo, dbCallInfo);
-                this.logger.info(JSON.stringify(formatCallInfo));
+                this.logger.info(JSON.stringify(formatCallInfo), this.serviceContext);
             } 
             return;
         }catch(e){
-            this.logger.error('Error parse and notifyCallInfo: ' + e)
+            this.logger.error('Error parse and notifyCallInfo: ' + e, this.serviceContext)
         }
 
     }
@@ -52,7 +53,7 @@ export class CdrService {
         formatCdr.timeStart = UtilsService.formateDate(formatCdr.timeStart);
         formatCdr.timeEnd  = UtilsService.formateDate(formatCdr.timeEnd );
         formatCdr.timeAnswered = UtilsService.formateDate(formatCdr.timeAnswered);
-        this.logger.info(formatCdr)
+        this.logger.info(formatCdr, this.serviceContext)
         const isExternal = this.checkIsExternalCall(formatCdr);
         const apiCallInfo = (isExternal) ? this.getApiCallInfo(formatCdr) : undefined;
 

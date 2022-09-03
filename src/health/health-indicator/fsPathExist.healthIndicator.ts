@@ -1,4 +1,3 @@
-import { DockerService } from '@app/docker/docker.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';

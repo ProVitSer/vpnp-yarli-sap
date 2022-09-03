@@ -1,13 +1,14 @@
-import { LoggerService } from '@app/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CallcentQueuecalls, ClCalls, ClParticipants, ClPartyInfo, ClSegments } from './entities';
-import { EntityRepository, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { CallsInfo } from './interfaces/types';
+import { LoggerService } from '@app/logger/logger.service';
 
 
 @Injectable()
 export class CallInfoService {
+    private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         @InjectRepository(ClParticipants)
@@ -20,7 +21,9 @@ export class CallInfoService {
         private calls: Repository<ClCalls>,
         @InjectRepository(CallcentQueuecalls)
         private queue: Repository<CallcentQueuecalls>
-      ) {}
+      ) {
+        this.serviceContext = CallInfoService.name;
+      }
       
         public async searchCallInfo(id: number): Promise<CallsInfo[]>{
             try {
@@ -30,7 +33,7 @@ export class CallInfoService {
                 WHERE cl_participants.info_id IN (select info_id from cl_participants where call_id = ${id})  
                 `);
             } catch(e){
-                this.logger.error(`Error get ClPartyInfo info: ${e}`);
+                this.logger.error(`Error get ClPartyInfo info: ${e}`, this.serviceContext);
                 throw e;
             }
         
@@ -50,7 +53,7 @@ export class CallInfoService {
                 .orderBy("cl_party_info.id", "DESC")
                 .getOne();
             } catch(e){
-                this.logger.error(`Error get callInfo : ${e}`);
+                this.logger.error(`Error get callInfo : ${e}`, this.serviceContext);
                 throw e;
             }
         } 
@@ -61,7 +64,7 @@ export class CallInfoService {
                 SELECT recording_url FROM cl_participants WHERE call_id = (SELECT call_id FROM cl_participants WHERE info_id = ${id}) ORDER BY id DESC LIMIT 1;
                 `);
             } catch(e){
-                this.logger.error(`Error get getRecord : ${e}`);
+                this.logger.error(`Error get getRecord : ${e}`, this.serviceContext);
                 throw e;
             }
         }

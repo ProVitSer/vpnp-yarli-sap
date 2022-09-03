@@ -4,18 +4,20 @@ import { Injectable } from "@nestjs/common";
 import { ParseCrmCall } from "./providers/crm";
 import { ParseInbound } from "./providers/inbound";
 import { ParseOutbound } from "./providers/outbound";
-import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface, SapCallInfo } from "./types/interfaces";
+import { FormatCallInfo, ParseProviderInterface, SapCallInfo } from "./types/interfaces";
 import { Directory } from "./types/types";
 
 @Injectable()
 export class CdrParserProvider {
-
+    private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         private readonly parseInbound: ParseInbound,
         private readonly parseOutbound: ParseOutbound,
         private readonly parseCrmCall: ParseCrmCall,
-    ){}
+    ){
+        this.serviceContext = CdrParserProvider.name;
+    }
 
     get providers(): any {
         return {
@@ -31,7 +33,7 @@ export class CdrParserProvider {
             const provider = this.getProvider(data.apiCallInfo.callStatus);
             return await provider.parseCallInfo(data , dbInfo);
         } catch(e){
-            this.logger.error(e);
+            this.logger.error(e, this.serviceContext);
             throw e;
         }
 

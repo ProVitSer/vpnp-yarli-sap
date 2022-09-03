@@ -5,17 +5,21 @@ import { CallsInfo } from './interfaces/types';
 
 @Injectable()
 export class OrmService {
+  private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         private readonly callInfo: CallInfoService
-      ) {}
+      ) {
+        this.serviceContext = OrmService.name;
+      }
 
 
       public async getExternalCallInfo(id: number): Promise<CallsInfo[]>{
           try {
             return await this.callInfo.searchCallInfo(id)
           } catch(e){
-              throw e;
+            this.logger.error(e, this.serviceContext)
+            throw e;
           }
       }
 
@@ -28,7 +32,8 @@ export class OrmService {
             throw `ClPartyInfo is empty by: ${callerNumber}, ${extensionNumber}`
           }
         } catch(e){
-            throw e;
+          this.logger.error(e, this.serviceContext);
+          throw e;
         }
       }
 

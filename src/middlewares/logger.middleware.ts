@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Injectable, NestMiddleware, Logger } from "@nestjs/common";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 import { LoggerService } from "@app/logger/logger.service";
 
 
@@ -7,10 +7,12 @@ import { LoggerService } from "@app/logger/logger.service";
 export class LoggerMiddleware implements NestMiddleware {
     private requestErrorMessage = null;
     private readonly requestStart = Date.now();
-  
+    private serviceContext: string;
     constructor(
       private readonly logger: LoggerService,
-    ){}
+    ){
+      this.serviceContext = LoggerMiddleware.name;
+    }
   
     use(request: Request, response: Response, next: NextFunction): void {
   
@@ -51,6 +53,6 @@ export class LoggerMiddleware implements NestMiddleware {
             statusCode,
             statusMessage,
           }
-        }))
+        }), this.serviceContext)
     }
 }

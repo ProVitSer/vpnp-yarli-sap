@@ -1,6 +1,6 @@
 import { CallsInfo } from "@app/orm/interfaces/types";
 import { Injectable } from "@nestjs/common";
-import { ExternalCallInfo, FormatCallInfo, ParseProviderInterface, SapCallInfo } from "../types/interfaces";
+import { FormatCallInfo, ParseProviderInterface, SapCallInfo } from "../types/interfaces";
 import { CallResult } from "../types/types";
 import * as moment from 'moment';
 import { ConfigService } from "@nestjs/config";

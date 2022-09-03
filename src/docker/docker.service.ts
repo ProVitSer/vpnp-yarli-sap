@@ -4,10 +4,13 @@ import { LoggerService } from "@app/logger/logger.service";
 
 @Injectable()
 export class DockerService {
+  private serviceContext: string;
   constructor(
     @Inject("DOCKER_SERVICE") private docker: Docker,
     private readonly logger: LoggerService
-  ) {}
+  ) {
+    this.serviceContext = DockerService.name;
+  }
 
 
   public async checkImgUp(img: string): Promise<any>{

@@ -10,6 +10,7 @@ import { Capabilities } from './types/interfaces';
 export class SeleniumWebdriver implements OnApplicationBootstrap  {
     private capabilities: Capabilities;
     private readonly seleniumDockerImg: string;
+    private serviceContext: string;
     constructor(
         private readonly configService: ConfigService,
         private readonly logger: LoggerService,
@@ -17,6 +18,7 @@ export class SeleniumWebdriver implements OnApplicationBootstrap  {
     ) {
         this.capabilities = this.configService.get('selenium.capabilities');
         this.seleniumDockerImg = this.configService.get('selenium.selenoidDockerImg');
+        this.serviceContext = SeleniumWebdriver.name;
     }
 
 
@@ -24,7 +26,7 @@ export class SeleniumWebdriver implements OnApplicationBootstrap  {
         try {
             await this.docker.checkImgUp(this.seleniumDockerImg);
         } catch(e){
-            this.logger.error(e)
+            this.logger.error(e, this.serviceContext)
         }
     }
 

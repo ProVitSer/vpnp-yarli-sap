@@ -1,5 +1,5 @@
 import { HttpExceptionFilter } from '@app/http-exception.filter';
-import { Body, Controller, ServiceUnavailableException, Post, Req, Res, UseFilters, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseFilters, HttpStatus } from '@nestjs/common';
 import { SendCall } from './dto/send-call.dto';
 import { Request, Response } from 'express'
 import { HttpException } from '@nestjs/common/exceptions/http.exception';

@@ -1,5 +1,4 @@
 import { AsteriskModule } from '@app/asterisk/asterisk.module';
-import { AsteriskService } from '@app/asterisk/asterisk.service';
 import { DockerModule } from '@app/docker/docker.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -14,5 +13,6 @@ import { HealthService } from './health.service';
   imports: [TerminusModule, ConfigModule, AsteriskModule, DockerModule],
   controllers: [HealthController],
   providers: [HealthService, AsteriskServiceHealthIndicator, DockerServiceHealthIndicator, DockerImgServiceHealthIndicator, FilaPathExistHealthIndicator],
+  exports: [HealthService]
 })
 export class HealthModule {}

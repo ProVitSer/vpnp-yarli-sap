@@ -2,17 +2,20 @@
 import { LoggerService } from '@app/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Builder,By, Key, until, WebDriver  } from 'selenium-webdriver'
+import { By, until, WebDriver  } from 'selenium-webdriver'
 import { SeleniumWebdriver } from '../selenium-webdriver';
 
 @Injectable()
 export class Login {
     private webDriver: WebDriver;
+    private serviceContext: string;
     constructor(
         private readonly seleniumWebDriver: SeleniumWebdriver,
         private readonly configService: ConfigService,
         private readonly logger: LoggerService
-    ) {}
+    ) {
+        this.serviceContext = Login.name;
+    }
 
     public async loginOnPbx(): Promise<WebDriver> {
         try {
@@ -46,7 +49,7 @@ export class Login {
             return this.webDriver;
         }catch(e){
             (!!this.webDriver)? await this.webDriver.quit() : '';
-            this.logger.error(e);
+            this.logger.error(e, this.serviceContext);
             throw 'Проблемы с авторизацией на веб интерфейсе АТС'
         }
     }

@@ -9,11 +9,13 @@ export interface PlainObject { [key: string]: any }
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {
     private client: any;
+    private serviceContext: string;
     constructor(
         @Inject('AMI') private readonly ami : any,
         private readonly configService: ConfigService,
         private readonly logger: LoggerService,
     ) {
+        this.serviceContext = AsteriskAmi.name;
     }
 
     public async onApplicationBootstrap() {
@@ -21,12 +23,12 @@ export class AsteriskAmi implements OnApplicationBootstrap {
             this.client = await this.ami;
             this.client.logLevel = this.configService.get('voip.asterisk.ami.logLevel');
             this.client.open();
-            this.client.on('namiConnected', () => this.logger.info('Подключение к AMI успешно установлено'));
+            this.client.on('namiConnected', () => this.logger.info('Подключение к AMI успешно установлено', this.serviceContext));
             this.client.on('namiConnectionClose', () => this.connectionClose());
             this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
             this.client.on('namiInvalidPeer', () => this.invalidPeer());
         } catch (e) {
-            this.logger.error(`AMI onApplicationBootstrap ${e}`)
+            this.logger.error(`AMI onApplicationBootstrap ${e}`, this.serviceContext)
         }
 
     };
@@ -36,7 +38,7 @@ export class AsteriskAmi implements OnApplicationBootstrap {
         if(!this.client.connected) throw 'Error connected to Asterisk';
         return await new Promise((resolve) =>{
             this.client.send(action, (event: any, error: any) => {
-                this.logger.info(event);
+                this.logger.info(event, this.serviceContext);
                 resolve(event);
             });
         })

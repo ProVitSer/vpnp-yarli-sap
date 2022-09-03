@@ -6,10 +6,13 @@ import { ActionType } from './types/type';
 
 @Injectable()
 export class SeleniumProvider {
+    private serviceContext: string;
     constructor(
         private readonly logger: LoggerService,
         private readonly changeStatus: ChangeExtensionStatus
-    ) {}
+    ) {
+        this.serviceContext = SeleniumProvider.name;
+    }
 
 
     get providers(): any {
@@ -24,7 +27,7 @@ export class SeleniumProvider {
             const provider = this.getProvider(action);
             return await provider.seleniumChange(data);
         }catch(e){
-            this.logger.error(e);
+            this.logger.error(e, this.serviceContext);
             throw e;
         }
     }

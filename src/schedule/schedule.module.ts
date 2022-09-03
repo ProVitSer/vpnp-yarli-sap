@@ -8,6 +8,6 @@ import { HealthServiceScheduledService } from './scheduled/healthServiceSchedule
 
 @Module({
     imports: [Schedule.forRoot(), LoggerModule, ConfigModule, HealthModule, MailModule],
-    providers: []
+    providers: [ HealthServiceScheduledService ]
 })
 export class ScheduleModule {}

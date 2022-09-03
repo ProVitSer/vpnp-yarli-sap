@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { HealthCheckService, TypeOrmHealthIndicator, HealthIndicatorResult, MicroserviceHealthIndicator, HealthCheckError, HealthCheckResult } from '@nestjs/terminus';
+import { HealthCheckService, TypeOrmHealthIndicator, HealthIndicatorResult, MicroserviceHealthIndicator, HealthCheckResult } from '@nestjs/terminus';
 import { AsteriskServiceHealthIndicator } from './health-indicator/asterisk.service.healthIndicator';
 import { DockerImgServiceHealthIndicator, DockerServiceHealthIndicator } from './health-indicator/docker.service.healthIndicator';
 import { FilaPathExistHealthIndicator } from './health-indicator/fsPathExist.healthIndicator';
-import { HealthCheckMailFormat, ServiceInfo } from './types/interfaces';
+import { HealthCheckMailFormat } from './types/interfaces';
 import { HealthCheckStatusType, ReturnHealthFormatType } from './types/types';
 
 @Injectable()

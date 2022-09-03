@@ -1,6 +1,5 @@
 import { CdrModule } from '@app/cdr/cdr.module';
 import { LoggerModule } from '@app/logger/logger.module';
-import { OrmModule } from '@app/orm/orm.module';
 import {  Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TcpServer } from './tcp.server';

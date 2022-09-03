@@ -1,9 +1,7 @@
 
 import { LoggerService } from '@app/logger/logger.service';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Builder,By, Key, until, WebDriver  } from 'selenium-webdriver'
-import { SeleniumWebdriver } from '../selenium-webdriver';
+import { By, WebDriver } from 'selenium-webdriver'
 
 @Injectable()
 export class Logout {

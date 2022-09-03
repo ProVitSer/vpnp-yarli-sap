@@ -7,12 +7,13 @@ import { SendMail } from './types/interfaces';
 
 @Injectable()
 export class MailService {
+  private serviceContext: string;
   constructor(
       private mailerService: MailerService,
       private readonly configService: ConfigService,
       private readonly logger: LoggerService 
     ) {
-      this.logger.setContext(MailService.name);
+      this.serviceContext = MailService.name;
     }
 
   public async sendMail({ to, from, subject, context, template }: SendMail): Promise<any> {
@@ -25,9 +26,9 @@ export class MailService {
           context,
           template
           });
-        this.logger.info(result);
+        this.logger.info(result, this.serviceContext);
       }catch(e){
-        this.logger.error(e);
+        this.logger.error(e, this.serviceContext);
         throw e;
       }
   }
