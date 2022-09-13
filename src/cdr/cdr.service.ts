@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CdrData, cdrFormatData, ExternalCallInfo, FormatCallInfo, TrunkNumber } from "./types/interfaces";
+import { CdrData, cdrFormatData, ExternalCallInfo, FormatCallInfo, SapCallInfo, TrunkNumber } from "./types/interfaces";
 import * as moment from 'moment';
 import { OrmService } from "@app/orm/orm.service";
 import { UtilsService } from "@app/utils/utils.service";
@@ -7,16 +7,22 @@ import { ConfigService } from "@nestjs/config";
 import { Directory } from "./types/types";
 import { CdrParserProvider } from "./cdr-parser.provider";
 import { LoggerService } from "@app/logger/logger.service";
+import { HttpService } from '@nestjs/axios'
 
 @Injectable()
 export class CdrService {
     private trunkNumber:TrunkNumber;
     private serviceContext: string;
+    private headers = {
+        'User-Agent': 'Vpnp-Yarli',
+        'Content-Type': 'application/json'
+    };
     constructor(
         private readonly logger: LoggerService,
         private readonly configService: ConfigService,
         private readonly orm: OrmService,
-        private readonly parser: CdrParserProvider
+        private readonly parser: CdrParserProvider,
+        private httpService: HttpService,
     ){
         this.trunkNumber = this.configService.get('pbxTrunkNumber');
         this.serviceContext = CdrService.name;
@@ -28,17 +34,29 @@ export class CdrService {
             const callInfo = this.formatCdrData(data);
             this.logger.info(callInfo, this.serviceContext)
             if(callInfo.isExternal){
-                this.logger.info(`External Call ${JSON.stringify(callInfo.apiCallInfo)}`, this.serviceContext );
-                const dbCallInfo = await this.orm.getExternalCallInfo(Number(callInfo.apiCallInfo["3cxId"]));
-                this.logger.info(`Cdr info from DB: ${JSON.stringify(dbCallInfo)}`, this.serviceContext);
-                const formatCallInfo = await this.parser.parse(callInfo, dbCallInfo);
-                this.logger.info(JSON.stringify(formatCallInfo), this.serviceContext);
-            } 
+                return await this.formatExternalCall(callInfo)
+            }   
             return;
         }catch(e){
             this.logger.error('Error parse and notifyCallInfo: ' + e, this.serviceContext)
         }
 
+    }
+
+    private async formatExternalCall(callInfo: FormatCallInfo){
+        try {
+            this.logger.info(`External Call ${JSON.stringify(callInfo.apiCallInfo)}`, this.serviceContext );
+            const dbCallInfo = await this.orm.getExternalCallInfo(Number(callInfo.apiCallInfo["3cxId"]));
+            this.logger.info(`Cdr info from DB: ${JSON.stringify(dbCallInfo)}`, this.serviceContext);
+            const formatCallsInfo = await this.parser.parse(callInfo, dbCallInfo);
+            this.logger.info(`Format data: ${JSON.stringify(formatCallsInfo)}`, this.serviceContext);
+            return await Promise.all( formatCallsInfo.map( async (callInfo: SapCallInfo) => {
+                const result = await this.httpService.post("https://localhost:3000/api", callInfo, { headers: this.headers } ).toPromise();
+                this.logger.info(result.status, this.serviceContext);
+            }))
+        }catch(e){
+
+        }
     }
 
     private formatCdrData(data: Array<string>): FormatCallInfo{

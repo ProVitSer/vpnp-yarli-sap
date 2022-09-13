@@ -7,9 +7,17 @@ import { CdrService } from './cdr.service';
 import { ParseCrmCall } from './providers/crm';
 import { ParseInbound } from './providers/inbound';
 import { ParseOutbound } from './providers/outbound';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports:[ConfigModule, LoggerModule, OrmModule],
+  imports:[ConfigModule, LoggerModule, OrmModule,
+    HttpModule.registerAsync({
+      useFactory: () => ({
+        timeout: 5000,
+        maxRedirects: 5,
+        validateStatus: () => true
+      }),
+    })],
   providers: [CdrService, CdrParserProvider, ParseInbound, ParseOutbound, ParseCrmCall],
   exports:[CdrService]
 })
