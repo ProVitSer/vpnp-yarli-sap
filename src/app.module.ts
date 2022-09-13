@@ -10,9 +10,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DockerModule } from './docker/docker.module';
 import { SeleniumModule } from './selenium/selenium.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ load: [configuration] }), AsteriskModule, LoggerModule, MicroserviceModule, OrmModule, CdrModule, DockerModule, SeleniumModule],
+  imports: [ConfigModule.forRoot({ load: [configuration] }), AsteriskModule, LoggerModule, MicroserviceModule, OrmModule, CdrModule, DockerModule, SeleniumModule, ScheduleModule],
   controllers: [AppController],
   providers: [AppService],
   exports:[ConfigModule]
