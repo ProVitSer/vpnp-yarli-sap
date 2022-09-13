@@ -16,8 +16,6 @@ const providers = [
   
 ];
 
-
-@Global()
 @Module({
   providers,
   imports:[ConfigModule, LoggerModule],

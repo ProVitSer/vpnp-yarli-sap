@@ -15,6 +15,7 @@ import { LoggerModule } from '@app/logger/logger.module';
       useFactory: (configService: ConfigService) => ({
         
         transport: {
+          debug: true,
           host: configService.get('mail.host'),
           port: configService.get('mail.port'),
           secure: configService.get('mail.secure'),
