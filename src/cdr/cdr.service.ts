@@ -8,6 +8,7 @@ import { Directory } from "./types/types";
 import { CdrParserProvider } from "./cdr-parser.provider";
 import { LoggerService } from "@app/logger/logger.service";
 import { HttpService } from '@nestjs/axios'
+import * as https from "https";
 
 @Injectable()
 export class CdrService {
@@ -17,12 +18,15 @@ export class CdrService {
         'User-Agent': 'Vpnp-Yarli',
         'Content-Type': 'application/json'
     };
+    private httpsAgent  = new https.Agent({
+        rejectUnauthorized: false,
+    });
     constructor(
         private readonly logger: LoggerService,
         private readonly configService: ConfigService,
         private readonly orm: OrmService,
         private readonly parser: CdrParserProvider,
-        private httpService: HttpService,
+        private readonly httpService: HttpService
     ){
         this.trunkNumber = this.configService.get('pbxTrunkNumber');
         this.serviceContext = CdrService.name;
@@ -51,11 +55,16 @@ export class CdrService {
             const formatCallsInfo = await this.parser.parse(callInfo, dbCallInfo);
             this.logger.info(`Format data: ${JSON.stringify(formatCallsInfo)}`, this.serviceContext);
             return await Promise.all( formatCallsInfo.map( async (callInfo: SapCallInfo) => {
-                const result = await this.httpService.post("https://localhost:3000/api", callInfo, { headers: this.headers } ).toPromise();
-                this.logger.info(result.status, this.serviceContext);
+                try {
+                    this.logger.info(`Send Info to SAP ${callInfo}`, this.serviceContext);
+                    const result = await this.httpService.post(this.configService.get('sapUrl'), callInfo, { headers: this.headers, httpsAgent: this.httpsAgent } ).toPromise();
+                    this.logger.info(result.status, this.serviceContext);
+                }catch(e){
+                    this.logger.info(`Error from SAP ${e.code || ''} ${e.data || ''} `, this.serviceContext);
+                }
             }))
         }catch(e){
-
+            this.logger.info(`Error formatExternalCall ${e}`, this.serviceContext);
         }
     }
 

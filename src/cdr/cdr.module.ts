@@ -10,14 +10,7 @@ import { ParseOutbound } from './providers/outbound';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports:[ConfigModule, LoggerModule, OrmModule,
-    HttpModule.registerAsync({
-      useFactory: () => ({
-        timeout: 5000,
-        maxRedirects: 5,
-        validateStatus: () => true
-      }),
-    })],
+  imports:[ConfigModule, LoggerModule, OrmModule, HttpModule],
   providers: [CdrService, CdrParserProvider, ParseInbound, ParseOutbound, ParseCrmCall],
   exports:[CdrService]
 })
