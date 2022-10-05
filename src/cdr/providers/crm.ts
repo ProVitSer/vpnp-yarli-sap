@@ -4,13 +4,19 @@ import { FormatCallInfo, ParseProviderInterface, SapCallInfo } from "../types/in
 import * as moment from 'moment';
 import { OrmService } from "@app/orm/orm.service";
 import { CallResult, Directory } from "../types/types";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ParseCrmCall implements ParseProviderInterface {
+    private readonly recordUrl: string;
     constructor(
         private readonly orm: OrmService,
+        private readonly configService: ConfigService
 
-    ){}
+    ){
+        this.recordUrl = `${this.configService.get('recordsUrl')}`;
+    }
+
     async parseCallInfo(data: FormatCallInfo, dbInfo: CallsInfo[]): Promise<SapCallInfo[]> {
         try {
             if(!dbInfo && dbInfo.length == 0 ) throw 'Отсутствует данные из БД для анализа';
@@ -26,7 +32,7 @@ export class ParseCrmCall implements ParseProviderInterface {
                 createdAt: moment(data.apiCallInfo.createdAt, 'YYYY-MM-DD H:mm:ss').unix().toString(),
                 callStatus: Directory.outbound,
                 callResult: (!!dbInfo[dbInfo.length -1].billing_duration)? CallResult.ANSWER: CallResult.BUSY,
-                link: recordUrl[0].recording_url
+                link: `${this.recordUrl}${recordUrl[0].recording_url}`
             }]
         }catch(e){
             throw e;
