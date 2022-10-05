@@ -22,14 +22,15 @@ export class AsteriskService {
     public async sendAmiCall(data: AmiCall): Promise<void> {
         try {
             const { extension, dialedNumber } = data;
-            this.logger.info(`Исходящий вызов из webhook CRM: внутренний номер ${extension} внешний номер ${dialedNumber}`);
+            const outboundNumber = dialedNumber.replace(/\s/g, '');
+            this.logger.info(`Исходящий вызов из webhook CRM: внутренний номер ${extension} внешний номер ${outboundNumber}`);
             const action = new namiLib.Actions.Originate();
-            action.channel = `local/${extension}:${dialedNumber}@${this.configServcie.get('voip.pbx3cx.routeTo3cx.localContext')}`,
-            action.callerid = dialedNumber;
+            action.channel = `local/${extension}:${outboundNumber}@${this.configServcie.get('voip.pbx3cx.routeTo3cx.localContext')}`,
+            action.callerid = outboundNumber;
             action.priority = AMIOUTBOUNDCALL.priority;
             action.timeout = AMIOUTBOUNDCALL.timeout;
             action.context = this.configServcie.get('voip.pbx3cx.routeTo3cx.externalContext');
-            action.exten = dialedNumber;
+            action.exten = outboundNumber;
             action.variable = `var1=${extension}`;
             action.channelid = moment().unix()
             action.async = AMIOUTBOUNDCALL.async;
