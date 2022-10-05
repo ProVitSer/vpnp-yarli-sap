@@ -56,7 +56,7 @@ export class CdrService {
             this.logger.info(`Format data: ${JSON.stringify(formatCallsInfo)}`, this.serviceContext);
             return await Promise.all( formatCallsInfo.map( async (callInfo: SapCallInfo) => {
                 try {
-                    this.logger.info(`Send Info to SAP ` + callInfo, this.serviceContext);
+                    this.logger.info(`Send Info to SAP ` + JSON.stringify(callInfo), this.serviceContext);
                     const result = await this.httpService.post(this.configService.get('sapUrl'), callInfo, { headers: this.headers, httpsAgent: this.httpsAgent } ).toPromise();
                     this.logger.info(result.status, this.serviceContext);
                 }catch(e){
